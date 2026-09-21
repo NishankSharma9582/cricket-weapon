@@ -1,0 +1,60 @@
+/* ===== Pagination ===== */
+.paginationBox {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.pagination {
+  display: flex;
+  flex-direction: row;      /* KEY: forces row layout */
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pagination-item {
+  display: inline-flex;     /* KEY: prevents stacking (default <li> is block) */
+  margin: 0;
+  list-style: none;
+}
+
+.pagination-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgb(226 232 240);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgb(51 65 85);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+  border-color: rgba(220, 38, 38, 0.4);
+  color: rgb(185 28 28);
+}
+
+.pagination-active-link {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.35);
+}
+
+.pagination-item.disabled .pagination-link {
+  opacity: 0.45;
+  pointer-events: none;
+}
