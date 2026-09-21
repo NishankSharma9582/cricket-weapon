@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Carousel from "react-material-ui-carousel";
-import Button from "@material-ui/core/Button";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import { makeStyles } from "@mui/styles";
+import Button from "@mui/material/Button";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { colors, typography } from "../theme";
@@ -119,6 +118,9 @@ const useStyles = makeStyles((theme) => ({
     objectPosition: "center",
   },
   navButton: {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     backdropFilter: "blur(10px)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -126,16 +128,23 @@ const useStyles = makeStyles((theme) => ({
     width: "50px",
     height: "50px",
     minWidth: "50px",
+    zIndex: 3,
     transition: "all 0.3s ease",
     "&:hover": {
       backgroundColor: "rgba(255, 255, 255, 0.2)",
-      transform: "scale(1.1)",
+      transform: "translateY(-50%) scale(1.1)",
     },
     [theme.breakpoints.down("sm")]: {
       width: "40px",
       height: "40px",
       minWidth: "40px",
     },
+  },
+  navPrev: {
+    left: "20px",
+  },
+  navNext: {
+    right: "20px",
   },
   indicators: {
     position: "absolute",
@@ -240,12 +249,6 @@ const slides = [
 export default function HeroSlider() {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
-  const [key, setKey] = useState(0);
-
-  // Reset animation key when slide changes
-  useEffect(() => {
-    setKey((prev) => prev + 1);
-  }, [activeStep]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => (prevActiveStep + 1) % slides.length);
@@ -257,91 +260,75 @@ export default function HeroSlider() {
     );
   };
 
+  // auto-advance the hero every 6 seconds
+  useEffect(() => {
+    const interval = setInterval(handleNext, 6000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeStep]);
+
+  const slide = slides[activeStep];
+
   return (
     <div className={classes.heroContainer}>
-      <Carousel
-        autoPlay={true}
-        navButtonsAlwaysVisible
-        indicators={false}
-        animation="fade"
-        interval={6000}
-        timeout={800}
-        cycleNavigation={true}
-        navButtonsProps={{
-          style: {
-            backgroundColor: "transparent",
-            padding: 0,
-            margin: "0 20px",
-          },
-        }}
-        navButtonsWrapperProps={{
-          style: {
-            top: "50%",
-            transform: "translateY(-50%)",
-          },
-        }}
-        prevButton={
-          <Button className={classes.navButton} onClick={handleBack}>
-            <ArrowBackIosIcon style={{ color: "#fff", marginLeft: "8px" }} />
-          </Button>
-        }
-        nextButton={
-          <Button className={classes.navButton} onClick={handleNext}>
-            <ArrowForwardIosIcon style={{ color: "#fff" }} />
-          </Button>
-        }
-        fullHeightHover={false}
-        className={classes.slide}
-        index={activeStep}
-        onChange={(now) => setActiveStep(now)}
-      >
-        {slides.map((slide, index) => (
-          <div key={index} className={classes.slide}>
-            <img
-              src={slide.image}
-              alt={`Cricket gear - ${slide.tagline}`}
-              className={classes.slideImage}
-            />
-            <div className={classes.slideOverlay} />
-            <AnimatePresence mode="wait">
-              {activeStep === index && (
+      <div className={classes.slide}>
+        <img
+          src={slide.image}
+          alt={`Cricket gear - ${slide.tagline}`}
+          className={classes.slideImage}
+        />
+        <div className={classes.slideOverlay} />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`content-${activeStep}`}
+            className={classes.slideContent}
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+          >
+            <motion.p className={classes.tagline} variants={itemVariants}>
+              {slide.tagline}
+            </motion.p>
+            <motion.h1 className={classes.quote} variants={itemVariants}>
+              {slide.quote}
+            </motion.h1>
+            <motion.p className={classes.saleText} variants={itemVariants}>
+              {slide.saleText}
+            </motion.p>
+            <motion.div variants={buttonVariants}>
+              <Link to="/products" style={{ textDecoration: "none" }}>
                 <motion.div
-                  key={`content-${index}-${key}`}
-                  className={classes.slideContent}
-                  variants={contentVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
                 >
-                  <motion.p className={classes.tagline} variants={itemVariants}>
-                    {slide.tagline}
-                  </motion.p>
-                  <motion.h1 className={classes.quote} variants={itemVariants}>
-                    {slide.quote}
-                  </motion.h1>
-                  <motion.p className={classes.saleText} variants={itemVariants}>
-                    {slide.saleText}
-                  </motion.p>
-                  <motion.div variants={buttonVariants}>
-                    <Link to="/products" style={{ textDecoration: "none" }}>
-                      <motion.div
-                        whileHover="hover"
-                        whileTap="tap"
-                        variants={buttonVariants}
-                      >
-                        <Button className={classes.productButton}>
-                          {slide.productText}
-                        </Button>
-                      </motion.div>
-                    </Link>
-                  </motion.div>
+                  <Button className={classes.productButton}>
+                    {slide.productText}
+                  </Button>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ))}
-      </Carousel>
-      
+              </Link>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Prev / Next */}
+      <Button
+        className={`${classes.navButton} ${classes.navPrev}`}
+        onClick={handleBack}
+        aria-label="Previous slide"
+      >
+        <ArrowBackIosIcon style={{ color: "#fff", marginLeft: "8px" }} />
+      </Button>
+      <Button
+        className={`${classes.navButton} ${classes.navNext}`}
+        onClick={handleNext}
+        aria-label="Next slide"
+      >
+        <ArrowForwardIosIcon style={{ color: "#fff" }} />
+      </Button>
+
       {/* Custom Indicators */}
       <div className={classes.indicators}>
         {slides.map((_, index) => (

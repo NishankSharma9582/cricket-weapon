@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { ShoppingCart } from "@material-ui/icons";
+import { ShoppingCart } from "@mui/icons-material";
 import "./CartIcon.css"
 const CartIcon = () => {
   const { cartItems } = useSelector((state) => state.cart);

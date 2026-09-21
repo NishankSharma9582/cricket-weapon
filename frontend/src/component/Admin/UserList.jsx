@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./ProductList.css";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import MetaData from "../layouts/MataData/MataData";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Sidebar from "./Siderbar";
 import Navbar from "./Navbar";
 import Loader from "../layouts/loader/Loader";
@@ -74,7 +74,7 @@ function UserList() {
       flex: 0.3,
       headerClassName: "column-header hide-on-mobile",
       cellClassName: (params) => {
-        return params.getValue(params.id, "role") === "admin"
+        return params.row.role === "admin"
           ? "greenColor"
           : "redColor";
       },
@@ -90,13 +90,13 @@ function UserList() {
       renderCell: (params) => {
         return (
           <>
-            <Link to={`/admin/user/${params.getValue(params.id, "id")}`}>
+            <Link to={`/admin/user/${params.row.id}`}>
               <EditIcon className="icon-" />
             </Link>
 
             <Button
               onClick={() =>
-                deleteUserHandler(params.getValue(params.id, "id"))
+                deleteUserHandler(params.row.id)
               }
             >
               <DeleteIcon className="iconbtn" />
@@ -166,13 +166,14 @@ function UserList() {
               <div className="productListContainer">
                 <h4 id="productListHeading">ALL USERS</h4>
 
-                <DataGrid
+<DataGrid
                   rows={rows}
                   columns={columns}
-                  pageSize={10}
-                  disableSelectionOnClick
-                  className="productListTable"
+                  initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                  disableRowSelectionOnClick
                   autoHeight
+                  pageSizeOptions={[10]}
+                  className="productListTable"
                 />
               </div>
             </div>

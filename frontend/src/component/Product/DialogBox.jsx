@@ -16,9 +16,9 @@ import {
   FormControlLabel,
   Radio,
   Box,
-} from "@material-ui/core";
-import { Close } from "@material-ui/icons";
-import Rating from "@material-ui/lab/Rating";
+} from "@mui/material";
+import { Close } from "@mui/icons-material";
+import Rating from "@mui/material/Rating";
 import { NEW_REVIEW_RESET } from "../../constants/productsConstatns";
 import { useSelector, useDispatch } from "react-redux";
 

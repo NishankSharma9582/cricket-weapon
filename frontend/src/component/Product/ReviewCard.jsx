@@ -1,6 +1,6 @@
 import React, { useState, lazy, Suspense } from "react";
-import { Typography, Grid, Select, MenuItem, Button } from "@material-ui/core";
-import Rating from "@material-ui/lab/Rating";
+import { Typography, Grid, Select, MenuItem, Button } from "@mui/material";
+import Rating from "@mui/material/Rating";
  import CricketBallLoader from "../layouts/loader/Loader";
 import { useStyles } from "./ReviewStyle";
 import MyCard from "./Card";

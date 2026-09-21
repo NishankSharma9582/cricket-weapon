@@ -19,7 +19,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { TextField, Radio } from "@material-ui/core";
+import { TextField, Radio } from "@mui/material";
 
 import MetaData from "../layouts/MataData/MataData";
 import OrderDetailsSection from "./OrderDetails";

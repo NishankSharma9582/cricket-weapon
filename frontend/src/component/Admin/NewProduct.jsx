@@ -7,17 +7,17 @@ import Sidebar from "./Siderbar";
 import { createProduct, clearErrors } from "../../actions/productAction";
 import { useHistory } from "react-router-dom";
 import { NEW_PRODUCT_RESET } from "../../constants/productsConstatns";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Box from "@material-ui/core/Box";
-import DescriptionIcon from "@material-ui/icons/Description";
-import StorageIcon from "@material-ui/icons/Storage";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import InputAdornment from "@mui/material/InputAdornment";
+import Box from "@mui/material/Box";
+import DescriptionIcon from "@mui/icons-material/Description";
+import StorageIcon from "@mui/icons-material/Storage";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import CollectionsIcon from "@mui/icons-material/Collections";
-import ShoppingCartOutlinedIcon from "@material-ui/icons/ShoppingCartOutlined";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import InfoIcon from "@mui/icons-material/Info";
 
 import Navbar from "./Navbar";
@@ -29,7 +29,7 @@ import {
   Typography,
   FormControl,
   Button,
-} from "@material-ui/core";
+} from "@mui/material";
 
 function NewProduct() {
   const dispatch = useDispatch();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./ProductList.css";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { useAlert } from "react-alert";
 import {
@@ -11,19 +11,19 @@ import {
 import {useHistory } from "react-router-dom";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import DeleteIcon from "@material-ui/icons/Delete";
-import Star from "@material-ui/icons/Star";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Star from "@mui/icons-material/Star";
 import {
   Avatar,
   Button,
   TextField,
   Typography,
   InputAdornment,
-} from "@material-ui/core";
+} from "@mui/material";
 import Navbar from "./Navbar";
 import Sidebar from "./Siderbar";
 import { DELETE_REVIEW_RESET } from "../../constants/productsConstatns";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import StarRateIcon from "@mui/icons-material/StarRate";
 
 const useStyles = makeStyles((theme) => ({
@@ -270,7 +270,7 @@ function ProductReviews() {
       flex: 1,
       headerClassName: "column-header hide-on-mobile",
       cellClassName: (params) => {
-        return params.getValue(params.id, "recommend") === true
+        return params.row.recommend === true
           ? "greenColor"
           : "redColor"; // if rating of review greater then class green else red
       },
@@ -284,7 +284,7 @@ function ProductReviews() {
       flex: 0.5,
       headerClassName: "column-header hide-on-mobile",
       cellClassName: (params) => {
-        return params.getValue(params.id, "rating") >= 3
+        return params.row.rating >= 3
           ? "greenColor"
           : "redColor"; // if rating of review greater then class green else red
       },
@@ -302,7 +302,7 @@ function ProductReviews() {
           <>
             <div 
               onClick={() =>
-                deleteReviewHandler(params.getValue(params.id, "id"))
+                deleteReviewHandler(params.row.id)
               }
             >
               <DeleteIcon className="iconbtn" style={{ marginLeft: "1rem" }} />
@@ -404,9 +404,10 @@ function ProductReviews() {
                     <DataGrid
                       rows={rows}
                       columns={columns}
-                      pageSize={10}
+                      initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
                       autoHeight
-                      disableSelectionOnClick
+                      pageSizeOptions={[10]}
+                      disableRowSelectionOnClick
                       className="productListTable"
                     />
                   </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
-import MailOutlineIcon from "@material-ui/icons/MailOutline";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 import { useSelector, useDispatch } from "react-redux";
 import MetaData from "../layouts/MataData/MataData";
@@ -14,7 +14,7 @@ import {
 } from "../../actions/userAction";
 import Loader from "../layouts/loader/Loader";
 import { useHistory, useRouteMatch } from "react-router-dom";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import {
   Avatar,
@@ -24,7 +24,7 @@ import {
   InputAdornment,
   MenuItem,
   Select,
-} from "@material-ui/core";
+} from "@mui/material";
 
 const useStyles = makeStyles((theme) => ({
   updateUser1: {

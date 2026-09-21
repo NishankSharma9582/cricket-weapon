@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./ProductList.css";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clearErrors,
@@ -10,8 +10,8 @@ import {
 import { Link, useHistory } from "react-router-dom";
 import { useAlert } from "react-alert"; 
 
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
 import Sidebar from "./Siderbar";
@@ -92,7 +92,7 @@ const columns = [
       return (
         <>
           <Link
-            to={`/admin/product/${params.getValue(params.id, "id")}`}
+            to={`/admin/product/${params.row.id}`}
             style={{ marginLeft: "1rem" }}
           >
             <EditIcon className="icon-" />
@@ -100,7 +100,7 @@ const columns = [
 
           <div
             onClick={() =>
-              deleteProductHandler(params.getValue(params.id, "id"))
+              deleteProductHandler(params.row.id)
             }
           >
             <DeleteIcon className="iconbtn" />
@@ -166,13 +166,14 @@ const columns = [
               <div className="productListContainer">
                 <h4 id="productListHeading">ALL PRODUCTS</h4>
 
-                <DataGrid
+<DataGrid
                   rows={rows}
                   columns={columns}
-                  pageSize={10}
-                  disableSelectionOnClick
-                  className="productListTable"
+                  initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                  disableRowSelectionOnClick
                   autoHeight
+                  pageSizeOptions={[10]}
+                  className="productListTable"
                 />
               </div>
             </div>

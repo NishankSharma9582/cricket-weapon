@@ -1,6 +1,6 @@
 import React, {useState , useEffect } from "react";
 import "./ProductList.css";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllOrders, clearErrors  , deleteOrder} from "../../actions/orderAction";
@@ -8,8 +8,8 @@ import { useAlert } from "react-alert";
 import { useHistory } from "react-router-dom";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Sidebar from "./Siderbar";
 import Navbar from "./Navbar";
 import { DELETE_ORDER_RESET } from "../../constants/orderConstant";
@@ -120,11 +120,11 @@ const columns = [
     renderCell: (params) => {
       return (
         <>
-          <Link to={`/admin/order/${params.getValue(params.id, "id")}`}>
+          <Link to={`/admin/order/${params.row.id}`}>
             <EditIcon className="icon-" />
           </Link>
           <Link
-            onClick={() => deleteOrderHandler(params.getValue(params.id, "id"))}
+            onClick={() => deleteOrderHandler(params.row.id)}
           >
             <DeleteIcon className="iconbtn" />
           </Link>
@@ -166,14 +166,15 @@ const columns = [
                <div className="productListContainer">
                  <h4 id="productListHeading">ALL ORDERS</h4>
 
-                 <DataGrid
-                   rows={rows}
-                   columns={columns}
-                   pageSize={10}
-                   disableSelectionOnClick
-                   className="productListTable"
-                   autoHeight
-                 />
+<DataGrid
+                  rows={rows}
+                  columns={columns}
+                  initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                  disableRowSelectionOnClick
+                  autoHeight
+                  pageSizeOptions={[10]}
+                  className="productListTable"
+                />
                </div>
              </div>
            </div>
