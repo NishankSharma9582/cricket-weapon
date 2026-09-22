@@ -9,6 +9,7 @@ import MetaData from "../layouts/MataData/MataData";
 import { clearErrors, getProduct } from "../../actions/productAction";
 import ProductCard from "../Home/ProductCard";
 import Pagination from "react-js-pagination";
+import "./Products.css";
 import { PageShell, stagger, item, EmptyState } from "../../ui/kit";
 
 const categories = [
@@ -244,7 +245,7 @@ function Products() {
                 className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4"
               >
                 {products.map((product) => (
-                  <motion.div key={product._id} variants={item}>
+                  <motion.div key={product._id} variants={item} className="h-full">
                     <ProductCard product={product} />
                   </motion.div>
                 ))}

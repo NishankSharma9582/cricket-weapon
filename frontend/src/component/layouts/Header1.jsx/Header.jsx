@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, X, MapPin, User, LogIn, UserPlus } from "lucide-react";
+import { Search, X, MapPin, User, LogIn, UserPlus } from "lucide-react";
 import CartIcon from "./CartIcon";
 import FlagSelect from "../../Home/Flag";
 import Sidebar from "./Sidebar";
@@ -30,9 +30,11 @@ function Header() {
   return (
     <>
       {/* ===== Utility bar ===== */}
-      <div className="bg-ink-900 text-ink-100">
+      <div className="bg-gradient-to-r from-brand-dark via-brand-deep to-ink-900 text-ink-100">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-[0.72rem] font-medium tracking-wide sm:px-6 lg:px-8">
-          <p className="truncate">We Offer Free Shipping On Orders Above ₹999</p>
+          <p className="truncate">
+            We Offer Free Shipping On Orders Above ₹999
+          </p>
           <div className="flex items-center gap-5">
             <span className="hidden items-center gap-1.5 sm:inline-flex">
               <MapPin size={14} />
@@ -84,7 +86,7 @@ function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
+          <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
             {NAV.map((n) => (
               <Link
                 key={n.to}
@@ -101,7 +103,7 @@ function Header() {
             {/* Desktop search */}
             <form
               onSubmit={handleSearchFormSubmit}
-              className="relative hidden md:block"
+              className="relative hidden lg:block"
               role="search"
             >
               <Search
@@ -117,11 +119,11 @@ function Header() {
               />
             </form>
 
-            {/* Mobile search */}
+            {/* Mobile search — also opens drawer */}
             <button
               aria-label="Search"
               onClick={() => setSideMenu(true)}
-              className="grid h-10 w-10 place-items-center rounded-full text-ink-700 hover:bg-brand/5 hover:text-brand md:hidden"
+              className="grid h-10 w-10 place-items-center rounded-full text-ink-700 hover:bg-brand/5 hover:text-brand lg:hidden"
             >
               <Search size={20} />
             </button>
@@ -134,18 +136,9 @@ function Header() {
               <CartIcon />
             </Link>
 
-            <div className="hidden items-center sm:flex">
+            <div className="flex items-center">
               <ProfileModal user={user} isAuthenticated={isAuthenticated} />
             </div>
-
-            <button
-              aria-label="Open menu"
-              aria-expanded={sideMenu}
-              onClick={() => setSideMenu(!sideMenu)}
-              className="grid h-10 w-10 place-items-center rounded-full text-ink-700 hover:bg-brand/5 hover:text-brand lg:hidden"
-            >
-              <Menu size={22} />
-            </button>
           </div>
         </div>
 
@@ -158,14 +151,14 @@ function Header() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setSideMenu(false)}
-                className="fixed inset-0 z-40 bg-ink-900/40 backdrop-blur-sm lg:hidden"
+                className="fixed inset-0 z-40 bg-ink-900/40 backdrop-blur-sm md:hidden"
               />
               <motion.aside
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "tween", duration: 0.28, ease: "easeOut" }}
-                className="glass-strong fixed right-0 top-0 z-50 flex h-full w-[300px] max-w-[85vw] flex-col p-6 shadow-soft lg:hidden"
+                className="glass-strong fixed right-0 top-0 z-50 flex h-full w-[300px] max-w-[85vw] flex-col p-6 shadow-soft md:hidden"
                 aria-label="Mobile menu"
               >
                 <div className="flex items-center justify-between">
@@ -181,7 +174,10 @@ function Header() {
                   </button>
                 </div>
 
-                <form onSubmit={handleSearchFormSubmit} className="relative mt-6">
+                <form
+                  onSubmit={handleSearchFormSubmit}
+                  className="relative mt-6"
+                >
                   <Search
                     size={16}
                     className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400"
@@ -195,7 +191,10 @@ function Header() {
                   />
                 </form>
 
-                <nav className="mt-6 flex flex-col gap-1" aria-label="Mobile primary">
+                <nav
+                  className="mt-6 flex flex-col gap-1"
+                  aria-label="Mobile primary"
+                >
                   {NAV.map((n) => (
                     <Link
                       key={n.to}

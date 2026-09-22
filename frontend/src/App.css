@@ -29,8 +29,16 @@ body {
   position: relative;
   min-height: 100vh;
   background:
-    radial-gradient(1100px 520px at 12% -6%, rgba(237, 28, 36, 0.10), transparent 58%),
-    radial-gradient(900px 600px at 105% 12%, rgba(237, 28, 36, 0.08), transparent 55%),
+    radial-gradient(
+      1100px 520px at 12% -6%,
+      rgba(237, 28, 36, 0.1),
+      transparent 58%
+    ),
+    radial-gradient(
+      900px 600px at 105% 12%,
+      rgba(237, 28, 36, 0.08),
+      transparent 55%
+    ),
     linear-gradient(180deg, #ffffff 0%, #f8f9fa 55%, #ffffff 100%);
 }
 
@@ -56,7 +64,7 @@ body {
   height: 360px;
   right: -120px;
   bottom: 8%;
-  background: rgba(18, 18, 18, 0.10);
+  background: rgba(18, 18, 18, 0.1);
 }
 
 /* ============ Glass primitives ============ */
@@ -84,23 +92,28 @@ body {
 .glass-card {
   border-radius: 1.25rem;
   box-shadow: 0 8px 32px rgba(18, 18, 18, 0.07);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 18px 44px rgba(18, 18, 18, 0.12), 0 4px 18px rgba(237, 28, 36, 0.06);
+  box-shadow:
+    0 18px 44px rgba(18, 18, 18, 0.12),
+    0 4px 18px rgba(237, 28, 36, 0.06);
   border-color: rgba(237, 28, 36, 0.22);
 }
 
 .text-gradient-red {
-  background: linear-gradient(120deg, #ED1C24, #B80504);
+  background: linear-gradient(120deg, #ed1c24, #b80504);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .bg-gradient-brand {
-  background: linear-gradient(120deg, #ED1C24 0%, #B80504 100%);
+  background: linear-gradient(120deg, #ed1c24 0%, #b80504 100%);
 }
 
 .btn-brand {
@@ -108,7 +121,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(120deg, #ED1C24 0%, #B80504 100%);
+  background: linear-gradient(120deg, #ed1c24 0%, #b80504 100%);
   color: #fff;
   border-radius: 0.875rem;
   font-weight: 600;
@@ -116,7 +129,10 @@ body {
   border: none;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(237, 28, 36, 0.24);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
 }
 .btn-brand:hover {
   transform: translateY(-2px);
@@ -143,7 +159,7 @@ body {
 .btn-ghost:hover {
   background: rgba(237, 28, 36, 0.06);
   border-color: rgba(237, 28, 36, 0.35);
-  color: #B80504;
+  color: #b80504;
 }
 
 .field {
@@ -155,10 +171,13 @@ body {
   font-size: 0.925rem;
   color: #141414;
   outline: none;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
 }
 .field:focus {
-  border-color: #ED1C24;
+  border-color: #ed1c24;
   box-shadow: 0 0 0 4px rgba(237, 28, 36, 0.12);
   background: #fff;
 }
@@ -173,34 +192,44 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* ============ Hide scrollbars everywhere (still scrollable) ============ */
+
+/* WebKit (Chrome, Safari, Edge, Opera) */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(18, 18, 18, 0.35);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #ED1C24;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
-.greenColor { color: #28A745 !important; }
-.redColor { color: #E30605 !important; }
+/* Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* IE / old Edge */
+* {
+  -ms-overflow-style: none;
+}
+
+.greenColor {
+  color: #28a745 !important;
+}
+.redColor {
+  color: #e30605 !important;
+}
 
 ::selection {
-  background-color: #E30605;
+  background-color: #e30605;
   color: #ffffff;
 }
 
-a { text-decoration: none; }
+a {
+  text-decoration: none;
+}
 
 /* Focus visibility for accessibility */
 :focus-visible {
-  outline: 2px solid #ED1C24;
+  outline: 2px solid #ed1c24;
   outline-offset: 2px;
 }
 
@@ -214,7 +243,9 @@ a { text-decoration: none; }
   margin: 0;
   padding: 0;
 }
-.pagination-item { list-style: none; }
+.pagination-item {
+  list-style: none;
+}
 .pagination-item a,
 .pagination-link {
   display: inline-flex;
@@ -233,11 +264,11 @@ a { text-decoration: none; }
 }
 .pagination-item a:hover {
   border-color: rgba(237, 28, 36, 0.4);
-  color: #B80504;
+  color: #b80504;
 }
 .pagination-active a,
 .pagination-active-link {
-  background: linear-gradient(120deg, #ED1C24 0%, #B80504 100%);
+  background: linear-gradient(120deg, #ed1c24 0%, #b80504 100%);
   border-color: transparent;
   color: #fff;
   box-shadow: 0 8px 20px rgba(237, 28, 36, 0.25);
@@ -285,26 +316,55 @@ a { text-decoration: none; }
   line-height: 1.7;
   color: #333333;
 }
-.legal h1 { font-size: 1.6rem; font-weight: 700; color: #141414; margin: 1.5rem 0 1rem; }
+.legal h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #141414;
+  margin: 1.5rem 0 1rem;
+}
 .legal h2 {
   font-size: 1.2rem;
   font-weight: 700;
   color: #141414;
   margin: 1.5rem 0 0.6rem;
   padding-left: 0.75rem;
-  border-left: 3px solid #ED1C24;
+  border-left: 3px solid #ed1c24;
 }
-.legal h3 { font-size: 1.02rem; font-weight: 600; color: #292929; margin: 1.1rem 0 0.4rem; }
-.legal p { margin-bottom: 0.8rem; }
-.legal ul { margin: 0.5rem 0 1rem 1.2rem; padding: 0; list-style: disc; }
-.legal li { margin-bottom: 0.4rem; }
-.legal strong { color: #141414; }
-.legal a { color: #B80504; font-weight: 500; }
-.legal a:hover { text-decoration: underline; }
+.legal h3 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #292929;
+  margin: 1.1rem 0 0.4rem;
+}
+.legal p {
+  margin-bottom: 0.8rem;
+}
+.legal ul {
+  margin: 0.5rem 0 1rem 1.2rem;
+  padding: 0;
+  list-style: disc;
+}
+.legal li {
+  margin-bottom: 0.4rem;
+}
+.legal strong {
+  color: #141414;
+}
+.legal a {
+  color: #b80504;
+  font-weight: 500;
+}
+.legal a:hover {
+  text-decoration: underline;
+}
 
 /* ============ Admin glass-shell polish (non-destructive) ============ */
-.admin-bar { border-radius: 1rem; }
-.product-list { background-color: transparent !important; }
+.admin-bar {
+  border-radius: 1rem;
+}
+.product-list {
+  background-color: transparent !important;
+}
 .listSidebar,
 .toggleBox {
   background: transparent !important;

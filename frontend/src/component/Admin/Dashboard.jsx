@@ -1,621 +1,389 @@
-import React, { useState, useEffect } from "react";
-import { BarChart } from "@mui/icons-material";
+import React, { useEffect, useMemo } from "react";
 import Highcharts from "highcharts";
-import { ShoppingCart, AssignmentInd, People } from "@mui/icons-material";
 import HighchartsReact from "highcharts-react-official";
-import Highcharts3D from "highcharts/highcharts-3d";
+import {
+  Package,
+  ClipboardList,
+  Users,
+  IndianRupee,
+  CalendarDays,
+} from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
-import { getAdminProducts, clearErrors } from "../../actions/productAction";
+import { useAlert } from "react-alert";
+import { useHistory } from "react-router-dom";
+
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import { useAlert } from "react-alert";
+import AdminLayout from "./shared/AdminLayout";
+import AdminPageHeader from "./shared/AdminPageHeader";
+import StatCard from "./shared/StatCard";
+
+import { getAdminProducts, clearErrors } from "../../actions/productAction";
 import { getAllOrders } from "../../actions/orderAction";
 import { getAllUsers } from "../../actions/userAction";
-import Navbar from "./Navbar";
-import Sidebar from "./Siderbar";
-import { useHistory } from "react-router-dom";
-import { makeStyles } from "@mui/styles";
-import { Typography } from "@mui/material";
-import ProductImg from "../../Image/admin/products.png";
-import ordersImg from "../../Image/admin/order.png";
-import usersImg from "../../Image/admin/user.png"; 
-Highcharts3D(Highcharts);
 
-const useStyles = makeStyles((theme) => ({
-  dashboard: {
-    display: "flex",
-    alignItems: "flex-start",
-    backgroundColor: "#f1f1f1",
-    justifyContent: "center",
-    width: "100%",
-    gap: "1rem",
-    overflow: "hidden",
-    margin: 0,
-    padding: 0,
-  },
-  firstBox: {
-    width: "20%",
-    margin: "0rem",
-    height: "fit-content",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    display: "block",
-    [theme.breakpoints.down("999")]: {
-      display: "none",
-    },
-  },
+/* ---------- theme tokens ---------- */
+const T = {
+  brand: "#ED1C24",
+  brandRgb: "237, 28, 36",
+  success: "#22C55E",
+  inkMuted: "#8b8b8b",
+  gridLine: "rgba(18, 18, 18, 0.07)",
+  axisLine: "#E5E7EB",
+  font: "Archivo, system-ui, sans-serif",
+};
 
-  toggleBox: {
-    width: "16rem",
-    margin: "0rem",
-    height: "fit-content",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    display: "block",
-    zIndex: "100",
-    position: "absolute",
-    top: "58px",
-    left: "17px",
-  },
-  secondBox: {
-    width: "75%",
-    height: "fit-content",
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-    justifyContent: "center",
-    [theme.breakpoints.down("999")]: {
-      width: "100%",
-    },
-  },
-  navBar: {
-    margin: "0rem",
-  },
-  summaryCard: {
-    display: "flex",
-    justifyContent: "center",
-    color: "white",
-    width: "100%",
-    height: "15rem",
-    gap: "1rem",
-    margin: "1rem 0 0 0",
+const inr = (n) =>
+  "₹" +
+  Number(n || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
 
-    [theme.breakpoints.down("sm")]: {
-      flexDirection: "column",
-      height: "20rem",
-      alignItems: "center",
-      marginTop: "7rem !important",
-    },
-  },
-  cardContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#414141",
-    margin: "0 1rem ",
-    width: "30%",
-    height: "10rem",
-
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    transition: "transform 0.2s ease-in-out",
-    cursor: "pointer",
-    "&:hover": {
-      transform: "scale(1.1) !important",
-      backgroundColor: "#ed1c24 ",
-      boxShadow: "0px 0px 10px rgba(0, 0, 0, black) !important",
-    },
-    [theme.breakpoints.between("sm", "md")]: {
-      width: "32% !important",
-      marginBottom: "1rem !important",
-      padding: "1rem 2rem ! important",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "85% !important",
-      marginBottom: "1rem !important",
-      padding: "2rem 2rem ! important",
-    },
-    [theme.breakpoints.down("xs")]: {
-      width: "85%",
-
-      padding: "1.2rem",
-      margin: "0   auto",
-      marginBottom: "1rem",
-      "&:hover": {
-        transform: "scale(1.05) !important",
-      },
-    },
-  },
-  textContainer: {
-    marginTop: "0.5rem",
-    textAlign: "center",
-    color: "white",
-    textShadow: "1px 1px 2px black",
-  },
-  heading: {
-    fontSize: "20px",
-    fontWeight: 800,
-    marginBottom: "0.5rem",
-    textShadow: "1px 1px 2px black",
-    [theme.breakpoints.down("md")]: {
-      fontSize: "18px",
-    },
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "22px",
-    },
-  },
-  number: {
-    fontSize: "1.5rem",
-    fontWeight: 500,
-    textShadow: "1px 1px 2px black",
-  },
-  headerConetnt: {
-    display: "flex",
-    gap: "1rem",
-    alignItems: "center",
-    color: "white",
-
-    [theme.breakpoints.down("md")]: {
-      "& svg": {
-        fontSize: "2rem",
-      },
-    },
-
-    [theme.breakpoints.down("sm")]: {
-      "& svg": {
-        fontSize: "3rem",
-      },
-    },
-  },
-  revenue: {
-    width: "100%",
-    height: "fit-content",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "-2.5rem auto 0",
-    [theme.breakpoints.down("sm")]: {
-      flexDirection: "column",
-      marginTop: "5rem !important",
-    },
-  },
-  doughnutChart: {
-    height: "fit-content",
-    width: "42%",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    padding: "1rem 2rem",
-    margin: "0 1rem",
-    [theme.breakpoints.down("md")]: {
-      width: "30%",
-      padding: "1rem 3rem",
-      ".highcharts-background": {
-        height: "350px !important",
-      },
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "85%",
-      padding: "2rem",
-      marginTop: "2rem",
-    },
-
-    [theme.breakpoints.down("xs")]: {
-      width: "85%",
-      marginBottom: "1rem",
-      padding: "1.2rem",
-    },
-  },
-  revnueContainer: {
-    width: "42%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 1rem",
-    height: "400px",
-    backgroundColor: "black",
-    borderRadius: "5px",
-    padding: "1rem 2rem",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    transition: "background-color 0.3s",
-
-    [theme.breakpoints.down("sm")]: {
-      width: "85% !important",
-      padding: "1rem",
-      height: "250px",
-    },
-
-    [theme.breakpoints.down("md")]: {
-      width: "30%",
-      padding: "1rem 3rem",
-    },
-    [theme.breakpoints.down("sm")]: {
-      marginTop: "1rem",
-      width: "85% !important",
-      padding: "2rem !important",
-      height: "250px",
-    },
-
-    [theme.breakpoints.down("xs")]: {
-      width: "85%",
-      marginBottom: "1rem",
-      padding: "1rem !important",
-    },
-  },
-  lineChart: {
-    width: "90%",
-    height: "fit-content",
-    backgroundColor: "white",
-    alignItems: "center",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    padding: "2rem",
-    margin: "1rem auto",
-
-    [theme.breakpoints.down("sm")]: {
-      width: "85%",
-    },
-
-    [theme.breakpoints.down("xs")]: {
-      width: "85%",
-      marginBottom: "1rem",
-      padding: "1.2rem",
-    },
-  },
-}));
+/* Build last-7-days revenue series from orders */
+function buildRevenueSeries(orders) {
+  const days = [];
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    days.push({
+      key: d.toISOString().slice(0, 10),
+      label: d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
+      value: 0,
+    });
+  }
+  const map = new Map(days.map((d) => [d.key, d]));
+  (orders || []).forEach((o) => {
+    const raw = o.createdAt ? new Date(o.createdAt) : null;
+    if (!raw || isNaN(raw)) return;
+    const bucket = map.get(raw.toISOString().slice(0, 10));
+    if (bucket) bucket.value += Number(o.totalPrice) || 0;
+  });
+  return {
+    categories: days.map((d) => d.label),
+    data: days.map((d) => d.value),
+  };
+}
 
 function Dashboard() {
-  const classes = useStyles();
   const history = useHistory();
   const dispatch = useDispatch();
-  const [toggle, setToggle] = useState(false);
-  const { products, loading, error } = useSelector((state) => state.products);
-  const { orders, error: ordersError } = useSelector(
-    (state) => state.allOrders
-  );
-  const { users, error: usersError } = useSelector((state) => state.allUsers);
-
   const alert = useAlert();
 
-  let OutOfStock = 0;
-  products &&
-    products.forEach((element) => {
-      // check how much items out of stocks in products array
-      if (element.stock === 0) {
-        OutOfStock += 1;
-      }
-    });
+  const {
+    products = [],
+    loading: productsLoading,
+    error: productsError,
+  } = useSelector((state) => state.products);
 
+  const {
+    orders = [],
+    loading: ordersLoading,
+    error: ordersError,
+  } = useSelector((state) => state.allOrders);
 
+  const {
+    users = [],
+    loading: usersLoading,
+    error: usersError,
+  } = useSelector((state) => state.allUsers);
 
+  const loading = productsLoading || ordersLoading || usersLoading;
+
+  /* ---------- fetch ---------- */
   useEffect(() => {
-    if (error) {
-      alert.error(error);
-      dispatch(clearErrors);
-    }
-    if (usersError) {
-      alert.error(usersError);
-      dispatch(clearErrors);
-    }
-    if (ordersError) {
-      alert.error(ordersError);
-      dispatch(clearErrors);
-    }
-    
+    dispatch(getAdminProducts());
     dispatch(getAllOrders());
     dispatch(getAllUsers());
-    dispatch(getAdminProducts());
-  }, [dispatch, error, alert, ordersError, usersError]);
+  }, [dispatch]);
 
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
-
-  // total Amount Earned
-  let totalAmount = 0;
-  orders &&
-    orders.forEach((item) => {
-      totalAmount += item.totalPrice;
-    });
-
-  // chart js values for Line component
-  const lineOptions = {
-    chart: {
-      type: "line",
-      style: {
-        fontFamily: "Roboto",
-        fontWeight: "900",
-      },
-    },
-    xAxis: {
-      categories: ["Initial Amount", "Amount Earned"],
-      labels: {
-        style: {
-          fontWeight: "900",
-        },
-      },
-    },
-    yAxis: {
-      title: {
-        text: null,
-      },
-      labels: {
-        style: {
-          fontWeight: "900",
-        },
-      },
-    },
-    series: [
-      {
-        name: "TOTAL AMOUNT",
-        data: [0, totalAmount],
-      },
-    ],
-    plotOptions: {
-      line: {
-        lineWidth: 4,
-        marker: {
-          enabled: true,
-        },
-        color: "black",
-      },
-    },
-  };
-  // now set the Value of stock of the product for Doughnut component in  chart .
-
-  const doughnutOptions = {
-    chart: {
-      type: "pie",
-      options3d: {
-        enabled: true,
-        alpha: 45,
-        beta: 0,
-      },
-      style: {
-        fontFamily: "Roboto",
-      },
-    },
-    title: {
-      text: "Product Stock Status",
-      align: "center",
-      style: {
-        color: "black",
-        fontWeight: "900",
-      },
-    },
-
-    accessibility: {
-      point: {
-        valueSuffix: "%",
-      },
-    },
-    tooltip: {
-      pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
-    },
-    plotOptions: {
-      pie: {
-        allowPointSelect: true,
-        cursor: "pointer",
-        depth: 35,
-        dataLabels: {
-          enabled: true,
-          format: "{point.name}",
-          style: {
-            fontWeight: "500",
-          },
-        },
-      },
-    },
-    series: [
-      {
-        type: "pie",
-        name: "Share",
-        data: [
-          ["Out of Stock", products.length - OutOfStock],
-
-          {
-            name: "Out of Stock",
-            y: OutOfStock,
-            sliced: true,
-            selected: true,
-          },
-        ],
-      },
-    ],
-  };
-
-  // to close the sidebar when the screen size is greater than 1000px
+  /* ---------- error handling (correct slice per error) ---------- */
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 999 && toggle) {
-        setToggle(false);
-      }
-    };
+    if (productsError) {
+      alert.error(productsError);
+      dispatch(clearErrors());
+    }
+  }, [dispatch, alert, productsError]);
 
-    window.addEventListener("resize", handleResize);
+  useEffect(() => {
+    if (ordersError) alert.error(ordersError);
+  }, [alert, ordersError]);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
+  useEffect(() => {
+    if (usersError) alert.error(usersError);
+  }, [alert, usersError]);
+
+  /* ---------- derived stats ---------- */
+  const stats = useMemo(() => {
+    const outOfStock = products.filter((p) => Number(p.stock) <= 0).length;
+    const inStock = products.length - outOfStock;
+
+    const totalAmount = orders.reduce(
+      (acc, o) => acc + (Number(o.totalPrice) || 0),
+      0,
+    );
+
+    const deliveredOrders = orders.filter(
+      (o) => o.orderStatus === "Delivered",
+    ).length;
+    const cancelledOrders = orders.filter(
+      (o) => o.orderStatus === "Cancelled",
+    ).length;
+    const activeOrders = orders.length - deliveredOrders - cancelledOrders;
+
+    return {
+      totalProducts: products.length,
+      inStock,
+      outOfStock,
+      totalOrders: orders.length,
+      activeOrders,
+      deliveredOrders,
+      cancelledOrders,
+      totalUsers: users.length,
+      totalAmount,
     };
-  }, [toggle]);
+  }, [products, orders, users]);
+
+  const today = useMemo(
+    () =>
+      new Date().toLocaleDateString("en-IN", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+    [],
+  );
+
+  /* ---------- chart data ---------- */
+  const revenueSeries = useMemo(() => buildRevenueSeries(orders), [orders]);
+
+  const revenue7dTotal = useMemo(
+    () => revenueSeries.data.reduce((a, b) => a + b, 0),
+    [revenueSeries],
+  );
+
+  /* ---------- chart configs (memoized to avoid re-animation) ---------- */
+  const lineOptions = useMemo(
+    () => ({
+      chart: {
+        type: "areaspline",
+        backgroundColor: "transparent",
+        style: { fontFamily: T.font },
+        reflow: true,
+        spacing: [12, 12, 12, 12],
+      },
+      credits: { enabled: false },
+      title: { text: null },
+      xAxis: {
+        categories: revenueSeries.categories,
+        lineColor: T.axisLine,
+        tickColor: T.axisLine,
+        labels: {
+          style: { color: T.inkMuted, fontWeight: 600, fontFamily: T.font },
+        },
+      },
+      yAxis: {
+        title: { text: null },
+        gridLineColor: T.gridLine,
+        labels: {
+          style: { color: T.inkMuted, fontWeight: 600, fontFamily: T.font },
+          formatter() {
+            if (this.value >= 100000) return "₹" + this.value / 100000 + "L";
+            if (this.value >= 1000) return "₹" + this.value / 1000 + "k";
+            return "₹" + this.value;
+          },
+        },
+      },
+      legend: { enabled: false },
+      tooltip: {
+        valuePrefix: "₹",
+        pointFormat: "<b>{point.y:,.0f}</b>",
+      },
+      plotOptions: {
+        areaspline: {
+          fillColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            stops: [
+              [0, `rgba(${T.brandRgb}, 0.28)`],
+              [1, `rgba(${T.brandRgb}, 0.02)`],
+            ],
+          },
+          lineColor: T.brand,
+          lineWidth: 3,
+          marker: {
+            radius: 5,
+            fillColor: "#ffffff",
+            lineColor: T.brand,
+            lineWidth: 2,
+            states: { hover: { radius: 7 } },
+          },
+        },
+      },
+      series: [{ name: "Revenue", data: revenueSeries.data, color: T.brand }],
+    }),
+    [revenueSeries],
+  );
+
+  const doughnutOptions = useMemo(
+    () => ({
+      chart: {
+        type: "pie",
+        backgroundColor: "transparent",
+        style: { fontFamily: T.font },
+        reflow: true,
+        spacing: [12, 12, 12, 12],
+      },
+      credits: { enabled: false },
+      title: { text: null },
+      accessibility: { point: { valueSuffix: "%" } },
+      tooltip: { pointFormat: "{point.name}: <b>{point.percentage:.1f}%</b>" },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: "pointer",
+          innerSize: "62%",
+          dataLabels: { enabled: false },
+          borderWidth: 3,
+          borderColor: "#ffffff",
+          showInLegend: false,
+          states: { hover: { halo: { size: 6 } } },
+        },
+      },
+      series: [
+        {
+          type: "pie",
+          name: "Share",
+          data: [
+            { name: "In Stock", y: stats.inStock, color: T.success },
+            { name: "Out of Stock", y: stats.outOfStock, color: T.brand },
+          ],
+        },
+      ],
+    }),
+    [stats.inStock, stats.outOfStock],
+  );
+
+  const hasOrders = orders.length > 0;
+  const hasProducts = stats.totalProducts > 0;
 
   return (
-    <>
+    <AdminLayout>
+      <MetaData title="Dashboard — Admin Panel" />
+
+      <AdminPageHeader
+        title="Dashboard"
+        subtitle="Quick overview of your store performance"
+        breadcrumbs={[{ label: "Admin" }, { label: "Dashboard" }]}
+        action={
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-bold text-white ring-1 ring-white/25 backdrop-blur">
+            <CalendarDays size={14} /> {today}
+          </span>
+        }
+      />
+
       {loading ? (
-        <Loader />
+        <div className="grid min-h-[60vh] place-items-center text-ink-500">
+          <Loader />
+        </div>
       ) : (
-        <>
-          <MetaData title="Dashboard - Admin Panel" />
-          <div className={classes.dashboard}>
-            <div
-              className={
-                !toggle ? `${classes.firstBox}` : `${classes.toggleBox}`
-              }
-            >
-              <Sidebar />
-            </div>
+        <div className="space-y-6">
+          {/* Stat cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+            <StatCard
+              icon={Package}
+              label="Total Products"
+              value={stats.totalProducts}
+              sub={`${stats.inStock} in stock · ${stats.outOfStock} out`}
+              onClick={() => history.push("/admin/products")}
+            />
+            <StatCard
+              icon={ClipboardList}
+              label="Total Orders"
+              value={stats.totalOrders}
+              sub={`${stats.activeOrders} active`}
+              onClick={() => history.push("/admin/orders")}
+            />
+            <StatCard
+              icon={Users}
+              label="Total Users"
+              value={stats.totalUsers}
+              sub="Registered customers"
+              onClick={() => history.push("/admin/users")}
+            />
+            <StatCard
+              icon={IndianRupee}
+              label="Total Revenue"
+              value={inr(stats.totalAmount)}
+              sub={`${stats.deliveredOrders} delivered`}
+              onClick={() => history.push("/admin/orders")}
+            />
+          </div>
 
-            <div className={classes.secondBox}>
-              <div className={classes.navBar}>
-                <Navbar toggleHandler={toggleHandler} />
+          {/* Charts */}
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            {/* Revenue trend */}
+            <div className="glass-card rounded-2xl p-5 sm:p-6">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-extrabold uppercase tracking-wide text-ink-800">
+                    Revenue · Last 7 days
+                  </h3>
+                  <p className="mt-0.5 text-xs text-ink-500">
+                    Daily earnings across all orders
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-brand">
+                  {inr(revenue7dTotal)}
+                </span>
               </div>
 
-              <div className={classes.summaryCard}>
-                <div
-                  className={classes.cardContainer}
-                  style={{
-                    backgroundImage: `url(${ProductImg})`,
-                    backgroundSize: "cover",
-                    transition: "transform 0.2s ease-in-out",
-                    cursor: "pointer",
-                    ":hover": {
-                      transform: "scale(1.1)",
-                    },
-                  }}
-                  onClick={() => history.push("/admin/products")}
-                >
-                  <div className={classes.headerConetnt}>
-                    <ShoppingCart
-                      fontSize="large"
-                      style={{
-                        fontSize: "3rem",
-                        boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.25)",
-                      }}
-                    />
-
-                    <Typography variant="h6" className={classes.heading}>
-                      Total Products
-                    </Typography>
-                  </div>
-                  <div className={classes.textContainer}>
-                    <Typography variant="body2" className={classes.number}>
-                      {products && products.length}
-                    </Typography>
-                  </div>
-                </div>
-
-                <div
-                  className={classes.cardContainer}
-                  style={{
-                    backgroundImage: `url(${ordersImg})`,
-                    backgroundSize: "cover",
-                    transition: "transform 0.2s ease-in-out",
-                    cursor: "pointer",
-                    ":hover": {
-                      transform: "scale(1.1)",
-                    },
-                  }}
-                  onClick={() => history.push("/admin/orders")}
-                >
-                  <div className={classes.headerConetnt}>
-                    <AssignmentInd
-                      fontSize="large"
-                      style={{
-                        fontSize: "3rem",
-                        boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-                      }}
-                    />
-                    <Typography variant="h6" className={classes.heading}>
-                      Total Orders
-                    </Typography>
-                  </div>
-                  <div className={classes.textContainer}>
-                    <Typography variant="body2" className={classes.number}>
-                      {orders && orders.length}
-                    </Typography>
-                  </div>
-                </div>
-
-                <div
-                  className={classes.cardContainer}
-                  style={{
-                    backgroundImage: `url(${usersImg})`,
-                    backgroundSize: "cover",
-                    transition: "transform 0.2s ease-in-out",
-                    cursor: "pointer",
-                    ":hover": {
-                      transform: "scale(1.1)",
-                    },
-                  }}
-                  onClick={() => history.push("/admin/users")}
-                >
-                  <div className={classes.headerConetnt}>
-                    <People
-                      fontSize="large"
-                      style={{
-                        fontSize: "3rem",
-                        boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-                      }}
-                    />
-                    <Typography variant="h6" className={classes.heading}>
-                      Total Users
-                    </Typography>
-                  </div>
-                  <div className={classes.textContainer}>
-                    <Typography variant="body2" className={classes.number}>
-                      {users && users.length}
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-
-              <div className={classes.revenue}>
-                <div className={classes.doughnutChart}>
-                  <HighchartsReact
-                    highcharts={Highcharts}
-                    options={doughnutOptions}
-                  />
-                </div>
-
-                <div
-                  className={classes.revnueContainer}
-                  style={{
-                    backgroundImage: `url(${ProductImg})`,
-                    backgroundSize: "cover",
-                    transition: "transform 0.2s ease-in-out",
-                    borderRadius: "5px",
-
-                    width: "42%",
-                  }}
-                >
-                  <div className={classes.headerConetnt}>
-                    <BarChart
-                      fontSize="large"
-                      style={{
-                        fontSize: "3rem",
-                        boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-                      }}
-                    />
-
-                    <Typography variant="h6" className={classes.heading}>
-                      Total Revenue
-                    </Typography>
-                  </div>
-                  <div className={classes.textContainer}>
-                    <Typography variant="body2" className={classes.number}>
-                      ₹{totalAmount.toFixed(2)}
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-
-              <div className={classes.lineChart}>
+              {hasOrders ? (
                 <HighchartsReact
                   highcharts={Highcharts}
                   options={lineOptions}
+                  containerProps={{ className: "w-full" }}
                 />
+              ) : (
+                <div className="grid h-64 place-items-center text-sm text-ink-500">
+                  No orders yet — revenue will appear here.
+                </div>
+              )}
+            </div>
+
+            {/* Stock status */}
+            <div className="glass-card rounded-2xl p-5 sm:p-6">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-extrabold uppercase tracking-wide text-ink-800">
+                    Product Stock Status
+                  </h3>
+                  <p className="mt-0.5 text-xs text-ink-500">
+                    Share of products currently in stock
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                  {stats.totalProducts} total
+                </span>
               </div>
+
+              {hasProducts ? (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={doughnutOptions}
+                  containerProps={{ className: "w-full" }}
+                />
+              ) : (
+                <div className="grid h-64 place-items-center text-sm text-ink-500">
+                  No products yet — add products to see stock distribution.
+                </div>
+              )}
             </div>
           </div>
-        </>
+        </div>
       )}
-    </>
+    </AdminLayout>
   );
 }
 

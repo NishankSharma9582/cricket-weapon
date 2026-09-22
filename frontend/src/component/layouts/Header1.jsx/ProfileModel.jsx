@@ -89,7 +89,7 @@ const ProfileModal = ({ user, isAuthenticated }) => {
 
   function loginHandler() {
       setIsOpen(false);
-      
+
     history.push("/login");
   }
 
@@ -108,68 +108,78 @@ const ProfileModal = ({ user, isAuthenticated }) => {
       </div>
       {isOpen && (
         <Modal open={isOpen} onClose={onClose} className="modal-container">
-          <div className="modal-content" ref={modalRef}>
+          <div className="profile-menu-card" ref={modalRef}>
             {!isAuthenticated ? (
-              <div className="welcome-message">
-                <strong>Welcome!</strong>
-                <p>To access your account and manage orders, please log in.</p>
+              <div className="welcome-section">
+                <span className="welcome-badge">
+                  <LockOpenIcon className="welcome-badge-icon" />
+                  Welcome!
+                </span>
+                <p className="welcome-text">
+                  To access your account and manage orders, please log in.
+                </p>
+                <button className="login-btn" onClick={loginHandler}>
+                  Login / Signup
+                </button>
               </div>
             ) : (
-              <>
-                <div className="profile-info">
+              <div className="user-section">
+                <div className="avatar-ring">
                   <Avatar
                     src={user.avatar.url}
                     alt="User Avatar"
-                    className="avatar"
-                    style={{ width: "68px", height: "68px" }}
+                    className="profile-avatar"
                   />
-                  <p className="user-id">
-                    <strong>ID :</strong> {user._id.substring(0, 8)}
-                  </p>
-
-                  <p className="user-name">
-                    <strong>Name :</strong> {user.name}
-                  </p>
-
-                  <p className="user-email">
-                    <strong>Email :</strong> {user.email}
-                  </p>
-
-                  <p className="created-at">
-                    <strong>Joined at:</strong> {createdAt(user)}
-                  </p>
                 </div>
-              </>
+                <p className="user-name">{user.name}</p>
+                <p className="user-email">{user.email}</p>
+                <span className="user-id">ID: {user._id.substring(0, 8)}</span>
+                <span className="joined-at">Joined {createdAt(user)}</span>
+              </div>
             )}
+
             <div className="divider" />
+
             <div className="profile-menu">
-              {user && user.role ==="admin" && (
+              {user && user.role === "admin" && (
                 <div className="menu-item" onClick={dashboardHandler}>
-                  <DashboardIcon className="menu-icon" />
-                  <span>Dashboard</span>
+                  <span className="menu-item-badge">
+                    <DashboardIcon className="menu-icon" />
+                  </span>
+                  <span className="menu-label">Dashboard</span>
                 </div>
               )}
               <div className="menu-item" onClick={accountHandler}>
-                <AccountCircleIcon className="menu-icon" />
-                <span>Profile</span>
+                <span className="menu-item-badge">
+                  <AccountCircleIcon className="menu-icon" />
+                </span>
+                <span className="menu-label">Profile</span>
               </div>
               <div className="menu-item" onClick={ordersHandler}>
-                <AssignmentIcon className="menu-icon" />
-                <span>Orders</span>
+                <span className="menu-item-badge">
+                  <AssignmentIcon className="menu-icon" />
+                </span>
+                <span className="menu-label">Orders</span>
               </div>
               <div className="menu-item" onClick={cartHandler}>
-                <ShoppingCartIcon className="menu-icon" />
-                <span>Cart</span>
+                <span className="menu-item-badge">
+                  <ShoppingCartIcon className="menu-icon" />
+                </span>
+                <span className="menu-label">Cart</span>
               </div>
               {!isAuthenticated ? (
                 <div className="menu-item" onClick={loginHandler}>
-                  <LockOpenIcon className="menu-icon" />
-                  <span>Login</span>
+                  <span className="menu-item-badge">
+                    <LockOpenIcon className="menu-icon" />
+                  </span>
+                  <span className="menu-label">Login</span>
                 </div>
               ) : (
-                <div className="menu-item" onClick={logoutUserHandler}>
-                  <ExitToAppIcon className="menu-icon" />
-                  <span>Logout</span>
+                <div className="menu-item menu-item-danger" onClick={logoutUserHandler}>
+                  <span className="menu-item-badge">
+                    <ExitToAppIcon className="menu-icon" />
+                  </span>
+                  <span className="menu-label">Logout</span>
                 </div>
               )}
             </div>

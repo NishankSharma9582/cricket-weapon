@@ -1,47 +1,50 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
-import MetaData from "../layouts/MataData/MataData";
-import Loader from "../layouts/loader/Loader";
-import DescriptionIcon from "@mui/icons-material/Description";
-import StorageIcon from "@mui/icons-material/Storage";
-import {
-  Avatar,
-  Button,
-  TextField,
-  Typography,
-  FormControl,
-} from "@mui/material";
-import Sidebar from "./Siderbar";
-import {
-  updateProduct,
-  clearErrors,
-  getProductDetails,
-} from "../../actions/productAction";
 import { useHistory } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ShoppingCart,
+  IndianRupee,
+  Package,
+  Info,
+  ImagePlus,
+  Upload,
+  Tag,
+  FileText,
+  Check,
+  X,
+} from "lucide-react";
+
+import MetaData from "../layouts/MataData/MataData";
+import { updateProduct, clearErrors, getProductDetails } from "../../actions/productAction";
 import { UPDATE_PRODUCT_RESET } from "../../constants/productsConstatns";
 import { useRouteMatch } from "react-router-dom";
-import InputAdornment from "@mui/material/InputAdornment";
-import Box from "@mui/material/Box";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import CollectionsIcon from "@mui/icons-material/Collections";
-import Select from "@mui/material/Select";
-import InfoIcon from "@mui/icons-material/Info";
-import MenuItem from "@mui/material/MenuItem";
-import Navbar from "./Navbar";
-import useStyles from "../User/LoginFromStyle";
+import AdminLayout from "./shared/AdminLayout";
+import AdminPageHeader from "./shared/AdminPageHeader";
+import Loader from "../layouts/loader/Loader";
+
+const categories = [
+  "Cricket Kits",
+  "Batting Gloves",
+  "Batting Pads",
+  "Bats",
+  "Bags",
+  "Helmets",
+  "Balls",
+  "Stumps",
+  "Shoes",
+  "Clothing",
+  "Accessories",
+];
+
 function UpdateProduct() {
   const dispatch = useDispatch();
   const history = useHistory();
   const alert = useAlert();
 
-  const classes = useStyles();
   const productId = useRouteMatch().params.id;
   const { error, product } = useSelector((state) => state.productDetails);
-
   const { loading, error: updateError, isUpdated } = useSelector(
     (state) => state.deleteUpdateProduct
   );
@@ -50,41 +53,22 @@ function UpdateProduct() {
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [isCategory, setIsCategory] = useState(false);
   const [Stock, setStock] = useState(0);
+  const [info, setInfo] = useState("");
   const [images, setImages] = useState([]);
-  const [info , setInfo] = useState('');
   const [imagesPreview, setImagesPreview] = useState([]);
   const [oldImages, setOldImages] = useState([]);
   const fileInputRef = useRef();
-  const [toggle, setToggle] = useState(false);
-  const categories = [
-    "Cricket Kits",
-    "Batting Gloves",
-    "Batting Pads",
-    "Bats",
-    "Bags",
-    "Helmets",
-    "Balls",
-    "Stumps",
-    "Shoes",
-    "Clothing",
-    "Accessories",
-  ];
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-    setIsCategory(true);
-  };
 
   useEffect(() => {
     if (product && product._id !== productId) {
       dispatch(getProductDetails(productId));
-    } else {
+    } else if (product && product._id === productId) {
       setName(product.name);
       setDescription(product.description);
       setPrice(product.price);
       setCategory("");
-      setInfo(product.info);  
+      setInfo(product.info);
       setStock(product.Stock);
       setOldImages(product.images);
     }
@@ -93,27 +77,16 @@ function UpdateProduct() {
       alert.error(error);
       dispatch(clearErrors());
     }
-
     if (updateError) {
       alert.error(updateError);
       dispatch(clearErrors());
     }
-
     if (isUpdated) {
       alert.success("Product Updated Successfully");
       history.push("/admin/products");
       dispatch({ type: UPDATE_PRODUCT_RESET });
     }
-  }, [
-    dispatch,
-    alert,
-    error,
-    history,
-    isUpdated,
-    productId,
-    product,
-    updateError,
-  ]);
+  }, [dispatch, alert, error, history, isUpdated, productId, product, updateError]);
 
   const createProductSubmitHandler = (e) => {
     e.preventDefault();
@@ -124,17 +97,8 @@ function UpdateProduct() {
     myForm.set("category", category);
     myForm.set("Stock", Stock);
     myForm.set("info", info);
-    images.forEach((currImg) => {
-      myForm.append("images", currImg);
-    });
-
-
+    images.forEach((currImg) => myForm.append("images", currImg));
     dispatch(updateProduct(productId, myForm));
-  };
-
-
-  const handleImageUpload = () => {
-    fileInputRef.current.click();
   };
 
   const updateProductImagesChange = (e) => {
@@ -153,289 +117,241 @@ function UpdateProduct() {
       reader.readAsDataURL(file);
     });
   };
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
 
   return (
-    <>
+    <AdminLayout>
+      <MetaData title="Update Product — Admin" />
       {loading ? (
-        <Loader />
+        <div className="grid place-items-center py-24">
+          <Loader />
+        </div>
       ) : (
         <>
-          <>
-            <MetaData title="Create Product" />
-            <div className={classes.updateProduct}>
-              <div
-                className={
-                  !toggle ? `${classes.firstBox1}` : `${classes.toggleBox1}`
-                }
+          <AdminPageHeader
+            variant="plain"
+            title="Update Product"
+            subtitle="Edit the details of this item in your catalogue."
+            back="/admin/products"
+            breadcrumbs={[
+              { label: "Admin" },
+              { label: "Catalogue", to: "/admin/products" },
+              { label: "Update Product" },
+            ]}
+          />
+
+          <div className="mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="glass glass-card overflow-hidden"
+            >
+              <form
+                onSubmit={createProductSubmitHandler}
+                encType="multipart/form-data"
+                className="space-y-6 p-6 sm:p-8"
               >
-                <Sidebar />
-              </div>
-              <div className={classes.secondBox1}>
-                <div className={classes.navBar1}>
-                  <Navbar toggleHandler={toggleHandler} />
-                </div>
+                {/* Product Name */}
+                <Field label="Product Name" icon={<ShoppingCart size={17} />} required>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="field !pl-11"
+                  />
+                </Field>
 
-                <div
-                  className={`${classes.formContainer} ${classes.formContainer2}`}
-                >
-                  <form
-                    className={`${classes.form} ${classes.form2}`}
-                    encType="multipart/form-data"
-                  >
-                    <Avatar className={classes.avatar}>
-                      <AddCircleOutlineIcon />
-                    </Avatar>
-                    <Typography
-                      variant="h5"
-                      component="h1"
-                      className={classes.heading}
-                    >
-                      Create Product
-                    </Typography>
-                    {/* SpellcheckIcon */}
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      className={`${classes.nameInput} ${classes.textField}`}
-                      label="Product Name"
+                {/* Price + Stock */}
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="Price" icon={<IndianRupee size={17} />} required>
+                    <input
+                      type="number"
                       required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <ShoppingCartOutlinedIcon
-                              style={{
-                                fontSize: 20,
-                                color: "#414141",
-                              }}
-                            />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <TextField
-                      variant="outlined"
-                      label="Price"
+                      min="0"
                       value={price}
-                      required
-                      fullWidth
-                      className={`${classes.passwordInput} ${classes.textField}`}
                       onChange={(e) => setPrice(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          >
-                            <AttachMoneyIcon />
-                          </InputAdornment>
-                        ),
-                      }}
+                      className="field !pl-11"
                     />
-
-                    <TextField
-                      variant="outlined"
-                      label="Stock"
+                  </Field>
+                  <Field label="Stock" icon={<Package size={17} />} required>
+                    <input
+                      type="number"
+                      required
+                      min="0"
                       value={Stock}
-                      required
-                      className={`${classes.passwordInput} ${classes.textField}`}
                       onChange={(e) => setStock(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          >
-                            <StorageIcon />
-                          </InputAdornment>
-                        ),
-                      }}
+                      className="field !pl-11"
                     />
-                    <TextField
-                      variant="outlined"
-                      label="Prodcut Info"
-                      value={info}
-                      required
-                      className={`${classes.passwordInput} ${classes.textField}`}
-                      onChange={(e) => setInfo(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          >
-                            <InfoIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-
-                    <div className={classes.selectOption}>
-                      {!isCategory && (
-                        <Typography
-                          variant="body2"
-                          className={classes.labelText}
-                        >
-                          Choose Category
-                        </Typography>
-                      )}
-                      <FormControl className={classes.formControl}>
-                        <Select
-                          variant="outlined"
-                          fullWidth
-                          value={category}
-                          onChange={handleCategoryChange}
-                          className={classes.select}
-                          inputProps={{
-                            name: "category",
-                            id: "category-select",
-                          }}
-                          MenuProps={{
-                            classes: {
-                              paper: classes.menu,
-                            },
-                            anchorOrigin: {
-                              vertical: "bottom",
-                              horizontal: "left",
-                            },
-                            transformOrigin: {
-                              vertical: "top",
-                              horizontal: "left",
-                            },
-                            getContentAnchorEl: null,
-                          }}
-                        >
-                          {!category && (
-                            <MenuItem value="">
-                              <em>Choose Category</em>
-                            </MenuItem>
-                          )}
-                          {categories.map((cate) => (
-                            <MenuItem key={cate} value={cate}>
-                              {cate}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
-
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      className={classes.descriptionInput}
-                      label="Product Description"
-                      multiline
-                      rows={1}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <DescriptionIcon
-                              className={classes.descriptionIcon}
-                            />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-
-                    <div className={classes.root}>
-                      <div className={classes.imgIcon}>
-                        <CollectionsIcon
-                          fontSize="large"
-                          style={{ fontSize: 40 }}
-                        />
-                      </div>
-
-                      <input
-                        type="file"
-                        name="avatar"
-                        className={classes.input}
-                        accept="image/*"
-                        onChange={updateProductImagesChange}
-                        multiple
-                        style={{ display: "none" }}
-                        ref={fileInputRef}
-                      />
-                      <label htmlFor="avatar-input">
-                        <Button
-                          variant="contained"
-                          color="default"
-                          className={classes.uploadAvatarButton}
-                          startIcon={
-                            <CloudUploadIcon
-                              style={{
-                                color: "#FFFFFF",
-                              }}
-                            />
-                          }
-                          onClick={handleImageUpload}
-                        >
-                          <p className={classes.uploadAvatarText}>
-                            Upload Images
-                          </p>
-                        </Button>
-                      </label>
-                    </div>
-
-                    {imagesPreview.length > 0 ? (
-                      <Box className={classes.imageArea}>
-                        {imagesPreview &&
-                          imagesPreview.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image}
-                              alt="Product Preview"
-                              className={classes.image}
-                            />
-                          ))}
-                      </Box>
-                    ) : (
-                      <Box className={classes.imageArea}>
-                        {oldImages &&
-                          oldImages.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image.url}
-                              alt="Old Product Preview"
-                              className={classes.image}
-                            />
-                          ))}
-                      </Box>
-                    )}
-
-                    <Button
-                      variant="contained"
-                      className={classes.loginButton}
-                      fullWidth
-                      onClick={createProductSubmitHandler}
-                      disabled={loading ? true : false}
-                    >
-                      Create
-                    </Button>
-                  </form>
+                  </Field>
                 </div>
-              </div>
-            </div>
-          </>
+
+                {/* Category */}
+                <Field label="Category" icon={<Tag size={17} />} required>
+                  <select
+                    required
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="field cursor-pointer appearance-none !pl-11"
+                  >
+                    <option value="">Choose a category…</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                {/* Short Info */}
+                <Field label="Short Info" icon={<Info size={17} />} required>
+                  <input
+                    type="text"
+                    required
+                    value={info}
+                    onChange={(e) => setInfo(e.target.value)}
+                    className="field !pl-11"
+                  />
+                </Field>
+
+                {/* Description */}
+                <Field label="Description" icon={<FileText size={17} />} required>
+                  <textarea
+                    required
+                    rows={4}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="field resize-none !pl-11"
+                  />
+                </Field>
+
+                {/* Images */}
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-ink-600">
+                    Product Images
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="group flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink-200 bg-white/40 px-6 py-10 transition hover:border-brand/50 hover:bg-brand/5"
+                  >
+                    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-brand text-white shadow-glow transition group-hover:scale-105">
+                      <Upload size={22} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-ink-800">
+                        Click to replace images
+                      </p>
+                      <p className="mt-0.5 text-xs text-ink-500">
+                        PNG, JPG, or WEBP · multiple allowed
+                      </p>
+                    </div>
+                  </button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={updateProductImagesChange}
+                    className="hidden"
+                  />
+
+                  {imagesPreview.length > 0 ? (
+                    <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+                      {imagesPreview.map((img, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="group relative aspect-square overflow-hidden rounded-xl border border-ink-200/60"
+                        >
+                          <img
+                            src={img}
+                            alt={`Preview ${i + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImages((old) => old.filter((_, j) => j !== i));
+                              setImagesPreview((old) => old.filter((_, j) => j !== i));
+                            }}
+                            aria-label="Remove image"
+                            className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-ink-900/70 text-white opacity-0 backdrop-blur transition group-hover:opacity-100 hover:bg-brand"
+                          >
+                            <X size={14} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : oldImages && oldImages.length > 0 ? (
+                    <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+                      {oldImages.map((img, i) => (
+                        <div
+                          key={i}
+                          className="relative aspect-square overflow-hidden rounded-xl border border-ink-200/60"
+                        >
+                          <img
+                            src={img.url}
+                            alt={`Current ${i + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                          <span className="absolute left-1.5 top-1.5 rounded-full bg-ink-900/60 px-2 py-0.5 text-[0.6rem] font-bold text-white backdrop-blur">
+                            Current
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-500">
+                      <ImagePlus size={14} /> No new images selected
+                    </p>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col-reverse gap-3 border-t border-ink-200/60 pt-6 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => history.push("/admin/products")}
+                    className="btn-ghost w-full sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-brand w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  >
+                    <Check size={17} /> Update Product
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         </>
       )}
-    </>
+    </AdminLayout>
   );
 }
+
+/* Small helper for consistent labeled fields with a leading icon */
+function Field({ label, icon, required, children }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink-600">
+        {label} {required && <span className="text-brand">*</span>}
+      </label>
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-ink-400">
+          {icon}
+        </span>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default UpdateProduct;

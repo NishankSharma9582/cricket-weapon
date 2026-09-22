@@ -1,18 +1,30 @@
 /* Cart Icon Styles */
 .cartIconWrapper {
   position: relative;
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.cartIconWrapper:hover {
+  background: rgba(237, 28, 36, 0.08);
 }
 
 .cartIcon {
-  font-size: 1.8rem;
   cursor: pointer;
-
-  color: #000; /* Initial icon color (black) */
+  color: #141414;
   position: relative;
+  display: inline-flex;
 }
 .cartIcon > svg {
-  font-size: 1.7rem;
+  font-size: 1.45rem;
+}
+
+.cartIconWrapper:hover .cartIcon {
+  color: #b80504;
 }
 
 .cartIcon:hover {

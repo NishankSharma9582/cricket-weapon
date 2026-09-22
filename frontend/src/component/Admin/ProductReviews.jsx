@@ -1,206 +1,36 @@
 import React, { useEffect, useState } from "react";
-import "./ProductList.css";
-import { DataGrid } from "@mui/x-data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { useAlert } from "react-alert";
-import {
-  getAllreviews,
-  clearErrors,
-  deleteProductReview,
-} from "../../actions/productAction";
-import {useHistory } from "react-router-dom";
-import MetaData from "../layouts/MataData/MataData";
-import Loader from "../layouts/loader/Loader";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Star from "@mui/icons-material/Star";
-import {
-  Avatar,
-  Button,
-  TextField,
-  Typography,
-  InputAdornment,
-} from "@mui/material";
-import Navbar from "./Navbar";
-import Sidebar from "./Siderbar";
+import { getAllreviews, clearErrors, deleteProductReview } from "../../actions/productAction";
+import { Star, Trash2, Search } from "lucide-react";
 import { DELETE_REVIEW_RESET } from "../../constants/productsConstatns";
-import { makeStyles } from "@mui/styles";
-import StarRateIcon from "@mui/icons-material/StarRate";
+import AdminLayout from "./shared/AdminLayout";
+import AdminPageHeader from "./shared/AdminPageHeader";
+import DataTable from "./shared/DataTable";
+import ConfirmDialog from "./shared/ConfirmDialog";
+import Pagination from "react-js-pagination";
 
-const useStyles = makeStyles((theme) => ({
-  updateUser1: {
-    display: "flex",
-    alignItems: "flex-start",
-    backgroundColor: "#f1f1f1",
-    justifyContent: "center",
-    width: "100%",
-    gap: "1rem",
-    overflow: "hidden",
-    margin: "-1.1rem 0 0 0",
-    padding: 0,
-  },
-  firstBox_01: {
-    width: "20%",
-    margin: "0rem",
-    height: "fit-content",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    display: "block",
-    [theme.breakpoints.down("999")]: {
-      display: "none",
-    },
-  },
-
-  toggleBox_01: {
-    width: "16rem",
-    margin: "0rem",
-    height: "fit-content",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    display: "block",
-    zIndex: "100",
-    position: "absolute",
-    top: "58px",
-    left: "17px",
-  },
-  secondBox_01: {
-    width: "75%",
-
-    height: "fit-content",
-    display: "flex",
-    flexDirection: "column",
-    margin: "-0.5rem 0 0 0",
-    gap: "10px",
-    justifyContent: "center",
-    [theme.breakpoints.down("999")]: {
-      width: "100%",
-    },
-  },
-  navBar_01: {
-    margin: "0rem",
-  },
-  formSection: {
-    width: "100%",
-    margin: "auto",
-    borderRadius: "5px",
-    height: "100vh",
-    backgroundColor: "white",
-    padding: "1rem 2rem",
-  },
-  form: {
-    width: "350px",
-    margin: "-1rem auto 0 auto",
-    borderRadius: "5px",
-    padding: "2rem",
-  },
-
-  avatar: {
-    margin: " 8px auto",
-    backgroundColor: "black",
-  },
-  textField: {
-    marginBottom: theme.spacing(2), 
-    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input": {
-      color: "black",
-      padding: "12px 14px",
-    },
-    "& .MuiInputLabel-root": {
-      color: "black",
-      fontSize: "14px",
-      textAlign: "center",
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-      color: "black",
-      fontSize: "14px",
-      textAlign: "center",
-    },
-    "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "black",
-        color: "black",
-      },
-      "& .MuiOutlinedInput-input": {
-        padding: "13px 8px",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "black",
-        color: "black",
-        outline: "none",
-      },
-    },
-  },
-
-  heading: {
-    textAlign: "center",
-    marginBottom: theme.spacing(3),
-    color: "#414141",
-    fontWeight: "bold",
-  },
-  heading_02: {
-    textAlign: "center",
-    textShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    color: "#414141",
-    fontWeight: "900",
-  },
-
-  nameInput: {
-    position: "relative",
-    "& > label": {
-      left: ".2rem",
-    },
-    padding: "4px 0px",
-    fontSize: "1rem",
-    width: "100%",
-    marginBottom: theme.spacing(5.5),
-    height: ".7rem",
-  },
-
-  loginButton: {
-    color: "#fff",
-    backgroundColor: "#000",
-    border: "2px solid #000",
-    margin: `${theme.spacing(3)}px 0`,
-    marginTop: "1rem",
-    "&:disabled": {
-      backgroundColor: "#444444", // faded black
-      color: "#FFFFFF",
-      borderColor: "#444444",
-    },
-    "&:hover": {
-      backgroundColor: "#ed1c24",
-      color: "#fff",
-      borderColor: "#ed1c24",
-    },
-  },
-}));
+const PAGE_SIZE = 10;
 
 function ProductReviews() {
-  const classes = useStyles();
   const dispatch = useDispatch();
-  const history = useHistory();
   const alert = useAlert();
-  const [toggle, setToggle] = useState(false);
-  const { error, reviews, loading } = useSelector(
-    (state) => state.getAllReview
-  );
+
+  const { error, reviews, loading } = useSelector((state) => state.getAllReview);
   const { error: deleteError, isDeleted } = useSelector(
     (state) => state.deleteReview
   );
 
   const [productId, setProductId] = useState("");
-
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemId, setItemId] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
     if (productId.length === 24) {
-      dispatch(getAllreviews(productId)); // when in input box string lenght goes ===24 then automatically search occures
+      dispatch(getAllreviews(productId));
     }
-
     if (error) {
       alert.error(error);
       dispatch(clearErrors());
@@ -211,216 +41,195 @@ function ProductReviews() {
     }
     if (isDeleted) {
       alert.success("Review Deleted Successfully");
-      history.push("/admin/reviews");
       dispatch({ type: DELETE_REVIEW_RESET });
     }
-  }, [dispatch, error, alert, deleteError, isDeleted, productId, history]);
-
-  // to close the sidebar when the screen size is greater than 1000px
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 999 && toggle) {
-        setToggle(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [toggle]);
-
-  // delet review from given prodcuts reviews =>
-  const deleteReviewHandler = (reviewId) => {
- 
-    dispatch(deleteProductReview(reviewId, productId));
-  };
+  }, [dispatch, error, alert, deleteError, isDeleted, productId]);
 
   const productReviewsSubmitHandler = (e) => {
     e.preventDefault();
-    dispatch(getAllreviews(productId)); // get this product reviews
+    setSearched(true);
+    setCurrentPage(1);
+    dispatch(getAllreviews(productId));
   };
+
+  const askDelete = (id) => {
+    setItemId(id);
+    setDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (itemId) dispatch(deleteProductReview(itemId, productId));
+    setDialogOpen(false);
+  };
+
+  const pageCount = reviews ? Math.ceil(reviews.length / PAGE_SIZE) : 0;
+  const paged = reviews
+    ? reviews.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+    : [];
+
   const columns = [
     {
-      field: "id",
-      headerName: "Review ID",
-      minWidth: 230,
-      flex: 0.5,
-      headerClassName: "column-header",
+      key: "id",
+      label: "Review ID",
+      render: (row) => (
+        <span className="font-mono text-xs font-semibold text-ink-500">
+          {row.id.slice(-10)}
+        </span>
+      ),
     },
     {
-      field: "user",
-      headerName: "User",
-      flex: 0.8,
-      magin: "0 auto",
-      headerClassName: "column-header hide-on-mobile",
-    },
-
-    {
-      field: "comment",
-      headerName: "Comment",
-      minWidth: 350,
-      flex: 0.8,
+      key: "user",
+      label: "User",
+      render: (row) => (
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-brand/20 bg-ink-100 text-xs font-bold text-brand">
+            {row.user.charAt(0).toUpperCase()}
+          </span>
+          <span className="font-semibold text-ink-800">{row.user}</span>
+        </div>
+      ),
     },
     {
-      field: "recommend",
-      headerName: "Recommend",
-      minWidth: 100,
-      flex: 1,
-      headerClassName: "column-header hide-on-mobile",
-      cellClassName: (params) => {
-        return params.row.recommend === true
-          ? "greenColor"
-          : "redColor"; // if rating of review greater then class green else red
-      },
+      key: "comment",
+      label: "Comment",
+      render: (row) => (
+        <p className="max-w-[22rem] truncate text-ink-600">{row.comment}</p>
+      ),
     },
-
     {
-      field: "rating",
-      headerName: "Rating",
-      type: "number",
-      minWidth: 200,
-      flex: 0.5,
-      headerClassName: "column-header hide-on-mobile",
-      cellClassName: (params) => {
-        return params.row.rating >= 3
-          ? "greenColor"
-          : "redColor"; // if rating of review greater then class green else red
-      },
+      key: "rating",
+      label: "Rating",
+      render: (row) => (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${
+            row.rating >= 3
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-amber-100 text-amber-700"
+          }`}
+        >
+          <Star size={13} className="fill-current" /> {row.rating}/5
+        </span>
+      ),
     },
-
     {
-      field: "actions",
-      flex: 1,
-      headerName: "Actions",
-      minWidth: 230,
-      headerClassName: "column-header1",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <div 
-              onClick={() =>
-                deleteReviewHandler(params.row.id)
-              }
-            >
-              <DeleteIcon className="iconbtn" style={{ marginLeft: "1rem" }} />
-            </div>
-          </>
-        );
-      },
+      key: "recommend",
+      label: "Recommend",
+      render: (row) => (
+        <span
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
+            row.recommend === "Yes"
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-ink-100 text-ink-500"
+          }`}
+        >
+          {row.recommend}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      align: "right",
+      render: (row) => (
+        <div className="flex items-center justify-end">
+          <button
+            onClick={() => askDelete(row.id)}
+            aria-label="Delete review"
+            className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-rose-50 hover:text-rose-600"
+          >
+            <Trash2 size={17} />
+          </button>
+        </div>
+      ),
     },
   ];
 
-  const rows = [];
-
-  reviews &&
-    reviews.forEach((item) => {
-      rows.push({
-        id: item._id,
-        user: item.name,
-        comment: item.comment,
-        rating: item.ratings,
-        recommend: item.recommend ? "Yes" : "No",
-      });
-    });
+  const rows = paged.map((item) => ({
+    id: item._id,
+    user: item.name,
+    comment: item.comment,
+    rating: item.ratings,
+    recommend: item.recommend ? "Yes" : "No",
+  }));
 
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <MetaData title="All Reviews" />
+    <AdminLayout>
+      <AdminPageHeader
+        variant="plain"
+        title="Product Reviews"
+        subtitle="Look up reviews for a product by its ID and moderate community feedback."
+        breadcrumbs={[
+          { label: "Admin" },
+          { label: "Catalogue", to: "/admin/products" },
+          { label: "Reviews" },
+        ]}
+      />
 
-          <div className={classes.updateUser1}>
-            <div
-              className={
-                !toggle ? `${classes.firstBox_01}` : `${classes.toggleBox_01}`
-              }
-            >
-              <Sidebar />
-            </div>
+      {/* Search by product id */}
+      <form
+        onSubmit={productReviewsSubmitHandler}
+        className="glass-card flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center"
+      >
+        <div className="flex flex-1 items-center gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-brand text-white">
+            <Star size={18} />
+          </span>
+          <input
+            type="text"
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
+            placeholder="Enter product ID (24 characters)…"
+            aria-label="Product ID"
+            className="field w-full"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={productId.length !== 24}
+          className="btn-brand shrink-0 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Search size={16} /> Load Reviews
+        </button>
+      </form>
 
-            <div className={classes.secondBox_01}>
-              <div className={classes.navBar_01}>
-                <Navbar toggleHandler={toggleHandler} />
-              </div>
-              <div className={classes.formSection}>
-                <form
-                  className={`${classes.form}`}
-                  onSubmit={productReviewsSubmitHandler}
-                >
-                  <Avatar className={classes.avatar}>
-                    <StarRateIcon />
-                  </Avatar>
-                  <Typography
-                    variant="h5"
-                    component="h1"
-                    className={classes.heading}
-                  >
-                    All Reviews
-                  </Typography>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    className={`${classes.nameInput} ${classes.textField}`}
-                    label="Product Id"
-                    required
-                    value={productId}
-                    onChange={(e) => setProductId(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <Star
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-
-                  <Button
-                    id="createProductBtn"
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    className={classes.loginButton}
-                    disabled={
-                      loading ? true : false || productId === "" ? true : false
-                    }
-                  >
-                    Search
-                  </Button>
-                </form>
-
-                {reviews && reviews.length > 0 ? (
-                  <div className="productListContainer">
-                    <h4 id="productListHeading">ALL PRODUCTS</h4>
-                    <DataGrid
-                      rows={rows}
-                      columns={columns}
-                      initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-                      autoHeight
-                      pageSizeOptions={[10]}
-                      disableRowSelectionOnClick
-                      className="productListTable"
-                    />
-                  </div>
-                ) : (
-                  <h1 className={classes.heading_02}>No Reviews Found</h1>
-                )}
-              </div>
-              ;
-            </div>
-          </div>
-        </>
+      {searched && (
+        <DataTable
+          loading={loading}
+          columns={columns}
+          rows={rows}
+          emptyTitle="No reviews found"
+          emptySubtitle="This product has no reviews yet, or the ID is invalid."
+        />
       )}
-    </>
+
+      {searched && !loading && pageCount > 1 && (
+        <div className="paginationBox">
+          <Pagination
+            activePage={currentPage}
+            itemsCountPerPage={PAGE_SIZE}
+            totalItemsCount={reviews.length}
+            onChange={setCurrentPage}
+            nextPageText="Next"
+            prevPageText="Prev"
+            firstPageText="First"
+            lastPageText="Last"
+            itemClass="pagination-item"
+            linkClass="pagination-link"
+            activeClass="pagination-active"
+            activeLinkClass="pagination-active-link"
+          />
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={dialogOpen}
+        title="Delete this review?"
+        message="This will permanently remove the review."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setDialogOpen(false)}
+      />
+    </AdminLayout>
   );
 }
 
